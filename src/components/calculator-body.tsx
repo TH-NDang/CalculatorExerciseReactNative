@@ -114,9 +114,31 @@ const CalculatorBody = ({
     } else if (buttonValue === '=') {
       calculateResult();
     } else if (buttonValue === ',') {
-      setValue(`${value},`);
-    } else if (buttonValue === 'x') {
-      setValue(`${value}x`);
+      // Kiểm tra xem có dấu chấm trong phần số cuối cùng không
+      const parts = value.split(/[\+\-\'x'\/]/);
+      const lastPart = parts[parts.length - 1];
+      if (
+        !lastPart.includes(',') &&
+        !['+', '-', 'x', '/', '%'].includes(value.slice(-1))
+      ) {
+        setValue(`${value},`);
+      }
+    } else if (['+', '-', 'x', '/', '%'].includes(buttonValue)) {
+      // Kiểm tra nếu value rỗng và là dấu trừ thì vẫn cho phép (số âm)
+      if (value === '' && buttonValue === '-') {
+        setValue(`${value}${buttonValue}`);
+      }
+      // Kiểm tra ký tự cuối có phải là operator không?
+      else if (
+        !['+', '-', 'x', '/', '%', ','].includes(value.slice(-1)) &&
+        value !== ''
+      ) {
+        setValue(`${value}${buttonValue}`);
+      }
+      // Thay thế operator hiện tại nếu ký tự cuối là operator
+      else if (['+', '-', 'x', '/', '%'].includes(value.slice(-1))) {
+        setValue(`${value.slice(0, -1)}${buttonValue}`);
+      }
     } else {
       setValue(`${value}${buttonValue}`);
     }
