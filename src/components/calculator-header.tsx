@@ -1,25 +1,56 @@
 import {View, Text, TextInput} from 'react-native';
 import React from 'react';
 
-const CalculatorHeader = ({value}: {value: string}) => {
+const CalculatorHeader = ({
+  value,
+  result,
+  themeColors,
+}: {
+  value: string;
+  result: string;
+  themeColors: any;
+}) => {
   return (
-    <>
-      <View
+    <View
+      style={{
+        padding: 20,
+        margin: 15,
+        borderRadius: 15,
+        height: '30%',
+        backgroundColor: themeColors.headerBackground,
+        borderWidth: 1,
+        borderColor: themeColors.headerBorder,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        flexDirection: 'column',
+      }}>
+      <Text
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          padding: 10,
-          margin: 10,
-          borderWidth: 1,
-          height: '45%',
+          fontSize: 40,
+          fontWeight: '600',
+          color: themeColors.headerText,
+          textAlign: 'left',
         }}>
-        <Text style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: '#000',
-        }}>{value}</Text>
-      </View>
-    </>
+        {value || '0'}
+      </Text>
+      <Text
+        style={{
+          fontSize: 30,
+          fontWeight: '600',
+          color: themeColors.headerText,
+          textAlign: 'right',
+        }}>
+        {result || '0'}
+      </Text>
+    </View>
   );
 };
 

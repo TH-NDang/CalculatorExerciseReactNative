@@ -4,23 +4,54 @@ import React, {useState} from 'react';
 const CircleButton = ({
   value,
   onPress,
+  themeColors,
+  buttonType = 'primary',
 }: {
   value: string;
   onPress: () => void;
+  themeColors: any;
+  buttonType?: 'primary' | 'operator' | 'function' | 'wide';
 }) => {
+  const getButtonColor = () => {
+    if (buttonType === 'operator') return themeColors.operatorButton;
+    if (buttonType === 'function') return themeColors.functionButton;
+    if (buttonType === 'wide') return themeColors.primaryButton;
+    return themeColors.primaryButton;
+  };
+
+  const getTextColor = () => {
+    if (buttonType === 'operator') return themeColors.operatorText;
+    return themeColors.buttonText;
+  };
+  const isWide = buttonType === 'wide';
+
   return (
     <TouchableOpacity
       onPress={onPress}
       style={{
-        width: 60,
-        height: 60,
-        borderRadius: 50,
-        backgroundColor: 'gray',
+        width: isWide ? 150 : 65,
+        height: 65,
+        borderRadius: isWide ? 35 : 65 / 2,
+        backgroundColor: getButtonColor(),
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 6,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
       }}>
-      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{value}</Text>
+      <Text
+        style={{
+          fontSize: 22,
+          fontWeight: '600',
+          color: getTextColor(),
+        }}>
+        {value}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -28,9 +59,15 @@ const CircleButton = ({
 const CalculatorBody = ({
   value,
   setValue,
+  result,
+  setResult,
+  themeColors,
 }: {
   value: string;
   setValue: (value: string) => void;
+  result: string;
+  setResult: (value: string) => void;
+  themeColors: any;
 }) => {
   const circleButtons = [
     ['AC', 'Back', '%', '/'],
@@ -40,133 +77,114 @@ const CalculatorBody = ({
     ['0', ',', '='],
   ];
 
+  const getButtonType = (buttonValue: string) => {
+    if (['+', '-', '*', '/', '=', '%'].includes(buttonValue)) {
+      return 'operator';
+    }
+    if (['AC', 'Back'].includes(buttonValue)) {
+      return 'function';
+    }
+    if (buttonValue === '0') {
+      return 'wide';
+    }
+    return 'primary';
+  };
+
+  const calculateResult = () => {
+    try {
+      // Replace comma with period for calculation
+      const expression = value.replace(/,/g, '.');
+
+      const result = eval(expression);
+      setResult(String(result).replace('.', ','));
+    } catch (error) {
+      setResult('Error');
+    }
+  };
+
+  const handleButtonPress = (buttonValue: string) => {
+    if (buttonValue === 'AC') {
+      setValue('');
+      setResult('');
+    } else if (buttonValue === 'Back') {
+      setValue(value.slice(0, -1));
+      setResult('');
+    } else if (buttonValue === '=') {
+      calculateResult();
+    } else if (buttonValue === ',') {
+      setValue(`${value},`);
+    } else {
+      setValue(`${value}${buttonValue}`);
+    }
+  };
+
+  // Render a special bottom row for the "0" button
+  const renderBottomRow = () => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          marginBottom: 15,
+        }}>
+        <CircleButton
+          value="0"
+          buttonType={getButtonType('0')}
+          themeColors={themeColors}
+          onPress={() => handleButtonPress('0')}
+        />
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '45%',
+            justifyContent: 'space-between',
+          }}>
+          <CircleButton
+            value=","
+            buttonType={getButtonType(',')}
+            themeColors={themeColors}
+            onPress={() => handleButtonPress(',')}
+          />
+          <CircleButton
+            value="="
+            buttonType={getButtonType('=')}
+            themeColors={themeColors}
+            onPress={() => handleButtonPress('=')}
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View
       style={{
-        display: 'flex',
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'space-evenly',
-        // alignItems: 'center',
-        padding: 9,
-        margin: 6,
+        padding: 15,
+        marginBottom: 15,
       }}>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          gap: 30,
-        }}>
-        <CircleButton
-          value={circleButtons[0][0]}
-          onPress={() => setValue('')}
-        />
-        <CircleButton
-          value={circleButtons[0][1]}
-          onPress={() => setValue(value.slice(0, -1))}
-        />
-        <CircleButton
-          value={circleButtons[0][2]}
-          onPress={() => setValue(`${value}%`)}
-        />
-        <CircleButton
-          value={circleButtons[0][3]}
-          onPress={() => setValue(`${value}/`)}
-        />
-      </View>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          gap: 30,
-        }}>
-        <CircleButton
-          value={circleButtons[1][0]}
-          onPress={() => setValue(`${value}7`)}
-        />
-        <CircleButton
-          value={circleButtons[1][1]}
-          onPress={() => setValue(`${value}8`)}
-        />
-        <CircleButton
-          value={circleButtons[1][2]}
-          onPress={() => setValue(`${value}9`)}
-        />
-        <CircleButton
-          value={circleButtons[1][3]}
-          onPress={() => setValue(`${value}*`)}
-        />
-      </View>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          gap: 30,
-        }}>
-        <CircleButton
-          value={circleButtons[2][0]}
-          onPress={() => setValue(`${value}4`)}
-        />
-        <CircleButton
-          value={circleButtons[2][1]}
-          onPress={() => setValue(`${value}5`)}
-        />
-        <CircleButton
-          value={circleButtons[2][2]}
-          onPress={() => setValue(`${value}6`)}
-        />
-        <CircleButton
-          value={circleButtons[2][3]}
-          onPress={() => setValue(`${value}-`)}
-        />
-      </View>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          gap: 30,
-        }}>
-        <CircleButton
-          value={circleButtons[3][0]}
-          onPress={() => setValue(`${value}1`)}
-        />
-        <CircleButton
-          value={circleButtons[3][1]}
-          onPress={() => setValue(`${value}2`)}
-        />
-        <CircleButton
-          value={circleButtons[3][2]}
-          onPress={() => setValue(`${value}3`)}
-        />
-        <CircleButton
-          value={circleButtons[3][3]}
-          onPress={() => setValue(`${value}+`)}
-        />
-      </View>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          gap: 30,
-        }}>
-        <CircleButton
-          value={circleButtons[4][0]}
-          onPress={() => setValue(`${value}0`)}
-        />
-        <CircleButton
-          value={circleButtons[4][1]}
-          onPress={() => setValue(`${value},`)}
-        />
-        <CircleButton
-          value={circleButtons[4][2]}
-          onPress={() => setValue(`${value}=`)}
-        />
-      </View>
+      {circleButtons.slice(0, -1).map((row, rowIndex) => (
+        <View
+          key={`row-${rowIndex}`}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: 15,
+          }}>
+          {row.map((btn, btnIndex) => (
+            <CircleButton
+              key={`btn-${rowIndex}-${btnIndex}`}
+              value={btn}
+              buttonType={getButtonType(btn)}
+              themeColors={themeColors}
+              onPress={() => handleButtonPress(btn)}
+            />
+          ))}
+        </View>
+      ))}
+      {renderBottomRow()}
     </View>
   );
 };
