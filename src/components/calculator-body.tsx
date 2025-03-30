@@ -71,14 +71,14 @@ const CalculatorBody = ({
 }) => {
   const circleButtons = [
     ['AC', 'Back', '%', '/'],
-    ['7', '8', '9', '*'],
+    ['7', '8', '9', 'x'],
     ['4', '5', '6', '-'],
     ['1', '2', '3', '+'],
     ['0', ',', '='],
   ];
 
   const getButtonType = (buttonValue: string) => {
-    if (['+', '-', '*', '/', '=', '%'].includes(buttonValue)) {
+    if (['+', '-', 'x', '/', '=', '%'].includes(buttonValue)) {
       return 'operator';
     }
     if (['AC', 'Back'].includes(buttonValue)) {
@@ -93,7 +93,9 @@ const CalculatorBody = ({
   const calculateResult = () => {
     try {
       // Replace comma with period for calculation
-      const expression = value.replace(/,/g, '.');
+      const expression = value
+        .replace(/,/g, '.') // Replace comma
+        .replace('x', '*'); // Replace x with *
 
       const result = eval(expression);
       setResult(String(result).replace('.', ','));
@@ -113,6 +115,8 @@ const CalculatorBody = ({
       calculateResult();
     } else if (buttonValue === ',') {
       setValue(`${value},`);
+    } else if (buttonValue === 'x') {
+      setValue(`${value}x`);
     } else {
       setValue(`${value}${buttonValue}`);
     }
