@@ -95,7 +95,7 @@ const CalculatorBody = ({
       // Replace comma with period for calculation
       const expression = value
         .replace(/,/g, '.') // Replace comma
-        .replace('x', '*'); // Replace x with *
+        .replace(/x/g, '*'); // Replace x with *
 
       const result = eval(expression);
       setResult(String(result).replace('.', ','));
